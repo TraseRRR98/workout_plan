@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS workout_tracker;
 CREATE DATABASE IF NOT EXISTS workout_tracker;
 USE workout_tracker;
 

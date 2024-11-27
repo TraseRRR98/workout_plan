@@ -24,9 +24,8 @@ ORDER BY we.exercise_order ASC";
 
 $result = $conn->query($query);
 
-if (!$result) {
+if (!$result) 
     die("Error retrieving workout exercises: " . $conn->error);
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Error recording progress: " . $conn->error);
 
     // Redirect back to progress page
-    header("Location: progress.php?user_id=" . $exercise['user_id']);
+    header("Location: ../progress/progress.php?user_id=" . $exercise['user_id']);
     exit;
 }
 ?>
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-success">Save Changes & Record Progress</button>
-                <a href="progress.php?user_id=<?= htmlspecialchars($exercise['user_id']) ?>" class="btn btn-secondary">Cancel</a>
+                <a href="../progress/progress.php?user_id=<?= htmlspecialchars($exercise['user_id']) ?>" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

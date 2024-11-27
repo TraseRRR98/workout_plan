@@ -70,7 +70,7 @@ if (!$result)
             </div>
         <?php endif; ?>
         <div class="text-center mt-4">
-            <a href="list_workouts.php?user_id=<?= htmlspecialchars($_GET['user_id']) ?>" class="btn btn-secondary">Back to Workouts</a>
+            <a href="../workouts/list_workouts.php?user_id=<?= htmlspecialchars($_GET['user_id']) ?>" class="btn btn-secondary">Back to Workouts</a>
         </div>
     </div>
 </body>

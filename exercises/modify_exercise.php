@@ -3,9 +3,8 @@ require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
 require_once '../lib/css.php'; // Include Bootstrap CSS
 
-if (!is_set_with_error('user_exercise_id')) {
+if (!is_set_with_error('user_exercise_id'))
     die("Error: user_exercise_id is required.");
-}
 
 $user_exercise_id = get_safe('user_exercise_id');
 
@@ -24,9 +23,8 @@ WHERE ue.user_exercise_id = '$user_exercise_id'
 
 $result = $conn->query($query);
 
-if (!$result || $result->num_rows == 0) {
+if (!$result || $result->num_rows == 0)
     die("Error: Unable to fetch exercise details.");
-}
 
 $exercise = $result->fetch_assoc();
 
@@ -43,18 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         SET sets = '$sets', reps = '$reps', weight = '$weight'
         WHERE user_exercise_id = '$user_exercise_id'
     ";
-    if (!$conn->query($update_query)) {
+    if (!$conn->query($update_query))
         die("Error updating exercise: " . $conn->error);
-    }
 
     // Insert into the `progress` table
     $insert_query = "
         INSERT INTO progress (user_exercise_id, date, sets, reps, weight, notes)
         VALUES ('$user_exercise_id', CURDATE(), '$sets', '$reps', '$weight', '$notes')
     ";
-    if (!$conn->query($insert_query)) {
+    if (!$conn->query($insert_query))
         die("Error recording progress: " . $conn->error);
-    }
 
     // Redirect back to progress page
     header("Location: progress.php?user_id=" . $exercise['user_id']);

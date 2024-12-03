@@ -1,7 +1,11 @@
 <?php
 require_once "./lib/db_connect.php";
 require_once "./lib/accessors.php";
-require_once "./lib/user_login_tools.php";
+require_once "./login/user_login_tools.php";
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 function navbar_generator($elements)
 {
@@ -59,10 +63,13 @@ function generate_general_navbar()
 
 function generic_navbar()
 {
+    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
     $generic_elements = [
         ['Home', './index.php'],
-        ['Login', '../lib/login.php'],
-        ['Signup', '../lib/sign_up.php']
+        ['Progress', $user_id ? "./progress/progress.php" : "./login/login.php"], // Link to Progress only if user_id exists
+        ['Workouts', $user_id ? "./workouts/list_workouts.php" : "./login/login.php"],
+        ['Login', '../login/login.php'],
+        ['Signup', '../login/sign_up.php']
     ];
 
     return navbar_generator($generic_elements);

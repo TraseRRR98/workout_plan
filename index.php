@@ -1,7 +1,7 @@
 <?php
 require_once './lib/accessors.php';
 require_once './lib/db_connect.php';
-require_once './lib/user_login_tools.php';
+require_once "./login/user_login_tools.php";
 require_once './lib/navbar.php'; // Include the navbar first
 include './lib/css.php'; // Then include CSS for styling
 

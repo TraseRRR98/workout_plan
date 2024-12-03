@@ -2,7 +2,8 @@
 if (session_status() == PHP_SESSION_NONE) 
     session_start();
 
-require_once 'db_connect.php';
+require_once '../lib/db_connect.php';
+require_once '../lib/accessors.php'; 
 
 function login_user($email, $password) {
     global $conn;

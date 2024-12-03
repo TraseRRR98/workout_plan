@@ -263,6 +263,31 @@ ALTER TABLE `workout_exercises`
   ADD CONSTRAINT `workout_exercises_ibfk_2` FOREIGN KEY (`user_exercise_id`) REFERENCES `users_exercises` (`user_exercise_id`) ON DELETE CASCADE;
 COMMIT;
 
+-- Add the user_usertypes table
+CREATE TABLE `user_usertypes` (
+  `usertype_id` int(11) NOT NULL AUTO_INCREMENT,
+  `usertype_description` varchar(50) NOT NULL,
+  PRIMARY KEY (`usertype_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Insert predefined user types
+INSERT INTO `user_usertypes` (`usertype_id`, `usertype_description`) VALUES
+(1, 'Trainee'),
+(2, 'Coach'),
+(3, 'Administrator');
+
+-- Modify the user table to add usertype_id
+ALTER TABLE `user`
+ADD COLUMN `usertype_id` int(11) DEFAULT NULL,
+ADD CONSTRAINT `user_ibfk_2` FOREIGN KEY (`usertype_id`) REFERENCES `user_usertypes` (`usertype_id`) ON DELETE SET NULL;
+
+-- Assign default user type (Trainee) to existing users
+UPDATE `user` SET `usertype_id` = 1 WHERE `usertype_id` IS NULL;
+
+-- Adjust the AUTO_INCREMENT value for user_usertypes
+ALTER TABLE `user_usertypes`
+MODIFY `usertype_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

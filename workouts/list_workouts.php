@@ -36,7 +36,7 @@ if (!$result)
     <div class="container mt-4">
         <h2 class="mb-4 text-center">Your Workouts</h2>
         <div class="mt-4">
-            <a href="../workouts/add_workouts.php" class="btn btn-success">Add Workout</a>
+            <a href="../workouts/add_workouts.php" class="btn btn-primary btn-lg">Add Workout</a>
         </div>
         <?php if ($result->num_rows > 0): ?>
             <table class="table table-bordered table-hover">
@@ -53,7 +53,8 @@ if (!$result)
                             <td><?= htmlspecialchars($row['notes']) ?></td> 
                             <td><?= htmlspecialchars($row['duration']) ?></td>
                             <td>
-                                <a href="../exercises/list_workout_exercises.php?workout_id=<?= htmlspecialchars($row['workout_id']) ?>" class="btn btn-primary btn-sm">View Exercises</a>
+                                <a href="../exercises/list_workout_exercises.php?workout_id=<?= htmlspecialchars($row['workout_id']) ?>" class="btn btn-success btn-sm">View Exercises</a>
+                                <a href="../workouts/edit_workouts.php?workout_id=<?= htmlspecialchars($row['workout_id']) ?>" class="btn btn-primary btn-sm">Edit</a>
                             </td>
                         </tr>
                     <?php endwhile; ?>

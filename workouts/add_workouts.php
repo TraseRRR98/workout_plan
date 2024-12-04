@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $workout_date = get_safe('workout_date');
     $duration = get_safe('duration');
     $notes = get_safe('notes');
-    $selected_exercises = get_safe('exercises');
+    $selected_exercises = isset($_POST['exercises']) ? $_POST['exercises'] : [];
 
     // Validate inputs
     if (empty($workout_date) || empty($duration) || empty($selected_exercises)) {
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?= htmlspecialchars($success) ?>
             </div>
         <?php endif; ?>
-        <form method="post" action="">
+        <form method="post" action="add_workouts.php">
             <div class="mb-3">
                 <label for="workout_date" class="form-label">Workout Date</label>
                 <input type="date" class="form-control" id="workout_date" name="workout_date" required>
@@ -114,15 +114,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
             </div>
             <div class="mb-3">
-                <label for="exercises" class="form-label">Select Exercises</label>
-                <select class="form-control" id="exercises" name="exercises[]" multiple required>
+                <label for="exerciseSearch" class="form-label">Search Exercises</label>
+                <input type="text" id="exerciseSearch" class="form-control" onkeyup="filterExercises()" placeholder="Search for exercises...">
+            </div>
+            <div id="exerciseList" class="mb-3">
+                <label class="form-label">Select Exercises</label>
+                <div class="form-check">
                     <?php while ($exercise = $exercise_result->fetch_assoc()): ?>
-                        <option value="<?= htmlspecialchars($exercise['exercise_id']) ?>">
-                            <?= htmlspecialchars($exercise['exercise_name']) ?>
-                        </option>
+                        <div class="exercise-item">
+                            <input 
+                                type="checkbox" 
+                                id="exercise_<?= $exercise['exercise_id'] ?>" 
+                                name="exercises[]" 
+                                class="form-check-input" 
+                                value="<?= $exercise['exercise_id'] ?>">
+                            <label for="exercise_<?= $exercise['exercise_id'] ?>" class="form-check-label">
+                                <?= htmlspecialchars($exercise['exercise_name']) ?>
+                            </label>
+                        </div>
                     <?php endwhile; ?>
-                </select>
-                <small class="form-text text-muted">Hold Ctrl (Cmd on Mac) to select multiple exercises.</small>
+                </div>
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Add Workout</button>
@@ -132,6 +143,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 </html>
+<script>
+        // Live search filter function
+        function filterExercises() {
+            const searchInput = document.getElementById('exerciseSearch').value.toLowerCase();
+            const exerciseList = document.getElementById('exerciseList');
+            const exercises = exerciseList.getElementsByClassName('exercise-item');
+
+            for (let exercise of exercises) {
+                const exerciseName = exercise.getElementsByTagName('label')[0].innerText.toLowerCase();
+                if (exerciseName.includes(searchInput)) {
+                    exercise.style.display = '';
+                } else {
+                    exercise.style.display = 'none';
+                }
+            }
+        }
+    </script>
 <?php
 $conn->close();
 ?>

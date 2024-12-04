@@ -288,6 +288,28 @@ UPDATE `user` SET `usertype_id` = 1 WHERE `usertype_id` IS NULL;
 ALTER TABLE `user_usertypes`
 MODIFY `usertype_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
+INSERT INTO `exercises` (`exercise_name`, `exercise_description`, `muscle_group`) VALUES
+('Squat', 'A fundamental lower-body exercise targeting quads, hamstrings, and glutes.', 'Legs'),
+('Deadlift', 'A compound lift that works the back, legs, and core.', 'Full Body'),
+('Pull-Up', 'An upper-body pulling exercise focusing on the lats and biceps.', 'Back'),
+('Push-Up', 'A classic bodyweight exercise targeting chest, shoulders, and triceps.', 'Chest'),
+('Shoulder Press', 'An overhead pressing movement for shoulder development.', 'Shoulders'),
+('Bicep Curl', 'An isolation exercise targeting the biceps.', 'Arms'),
+('Tricep Dip', 'A bodyweight exercise focusing on the triceps.', 'Arms'),
+('Lunges', 'A lower-body exercise for the quads, hamstrings, and glutes.', 'Legs'),
+('Plank', 'A core stabilization exercise engaging the abs and back.', 'Core'),
+('Bench Press', 'A classic chest exercise focusing on pectorals.', 'Chest'),
+('Lat Pulldown', 'A machine exercise for the lats and upper back.', 'Back'),
+('Leg Press', 'A machine-based lower-body exercise for the quads and glutes.', 'Legs'),
+('Chest Fly', 'An isolation exercise for the chest using dumbbells or cables.', 'Chest'),
+('Seated Row', 'A machine exercise for the back and biceps.', 'Back'),
+('Calf Raise', 'An isolation exercise for the calves.', 'Legs'),
+('Russian Twist', 'A core rotation exercise targeting obliques.', 'Core'),
+('Arnold Press', 'A variation of the shoulder press for deltoid engagement.', 'Shoulders'),
+('Cable Tricep Pushdown', 'An isolation exercise for tricep development.', 'Arms'),
+('Hammer Curl', 'A variation of the bicep curl emphasizing the brachialis.', 'Arms'),
+('Hanging Leg Raise', 'A core exercise targeting the lower abs.', 'Core');
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

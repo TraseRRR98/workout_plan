@@ -12,21 +12,33 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <style>
-    .workout-container {
+    #exerciseList 
+    {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .workout-container 
+    {
         margin-bottom: 20px;
         border: 1px solid #ccc;
         padding: 15px;
         border-radius: 5px;
     }
-    .exercise-name {
+    .exercise-name 
+    {
         cursor: pointer;
         color: #007bff;
         text-decoration: underline;
     }
-    .exercise-name:hover {
+    .exercise-name:hover 
+    {
         text-decoration: none;
     }
-    .progress-table {
+    .progress-table 
+    {
         display: none;
         margin-top: 10px;
     }

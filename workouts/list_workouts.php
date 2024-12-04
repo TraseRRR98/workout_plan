@@ -13,12 +13,11 @@ if (!isset($_SESSION['user_id']))
 $query = "
 SELECT 
     workout_id, 
-    workout_date, 
     duration, 
     notes 
 FROM workouts
 WHERE user_id = '$user_id'
-ORDER BY workout_date DESC";
+ORDER BY workout_id ASC";
 
 $result = $conn->query($query);
 
@@ -43,20 +42,16 @@ if (!$result)
             <table class="table table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th>#</th>
-                        <th>Date</th>
-                        <th>Duration (min)</th>
                         <th>Workout Name</th>
+                        <th>Duration (min)</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?= htmlspecialchars($row['workout_id']) ?></td>
-                            <td><?= htmlspecialchars($row['workout_date']) ?></td>
+                            <td><?= htmlspecialchars($row['notes']) ?></td> 
                             <td><?= htmlspecialchars($row['duration']) ?></td>
-                            <td><?= htmlspecialchars($row['notes']) ?></td>
                             <td>
                                 <a href="../exercises/list_workout_exercises.php?workout_id=<?= htmlspecialchars($row['workout_id']) ?>" class="btn btn-primary btn-sm">View Exercises</a>
                             </td>

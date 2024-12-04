@@ -1,13 +1,15 @@
 <?php
-require_once '../lib/db_connect.php'; // Database connection
-require_once '../lib/accessors.php'; // Accessor functions
+require_once '../lib/db_connect.php'; 
+require_once '../lib/accessors.php';
+include '../lib/css.php';
 session_start();
 
 $error = '';
 $success = '';
 
 // Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+{
     $first_name = get_safe('first_name');
     $last_name = get_safe('last_name');
     $email = get_safe('email');
@@ -15,33 +17,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = get_safe('confirm_password');
 
     // Validate inputs
-    if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($confirm_password)) {
+    if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($confirm_password))
         $error = "All fields are required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL))
         $error = "Invalid email format.";
-    } elseif ($password !== $confirm_password) {
+    elseif ($password !== $confirm_password)
         $error = "Passwords do not match.";
-    } else {
+    else 
+    {
         // Check if the email already exists
         $query = "SELECT * FROM user WHERE email = '$email'";
         $result = $conn->query($query);
 
-        if ($result && $result->num_rows > 0) {
+        if ($result && $result->num_rows > 0)
             $error = "An account with this email already exists.";
-        } else {
+        else {
             // Hash the password
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
             // Insert the user into the database
-            $query = "
-                INSERT INTO user (first_name, last_name, email, password, usertype_id) 
-                VALUES ('$first_name', '$last_name', '$email', '$hashed_password', 1)
-            ";
-            if ($conn->query($query)) {
-                $success = "Registration successful! You can now <a href='login.php'>login</a>.";
-            } else {
+            $query = "INSERT INTO user (first_name, last_name, email, password, usertype_id) 
+                VALUES ('$first_name', '$last_name', '$email', '$hashed_password', 1)";
+        
+            if ($conn->query($query)) 
+                $success = "Registration successful! You can now <a href='login.php'>Login</a>.";
+            else
                 $error = "Error: " . $conn->error;
-            }
         }
     }
 }
@@ -53,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container mt-5">
@@ -64,9 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php elseif (!empty($success)): ?>
             <div class="alert alert-success text-center">
-                <?= htmlspecialchars($success) ?>
+                <?= $success // Render raw HTML ?>
             </div>
         <?php endif; ?>
+
         <form method="post" action="">
             <div class="mb-3">
                 <label for="first_name" class="form-label">First Name</label>

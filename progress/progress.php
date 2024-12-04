@@ -60,10 +60,10 @@ while ($row = $result->fetch_assoc()) {
             <?php foreach ($workouts as $workout_id => $workout): ?>
                 <div class="workout-container mb-4 p-3 border rounded">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4><strong>Workout name:</strong> <?= htmlspecialchars($workout['workout_notes']) ?></h4>
+                        <h4><strong>Workout name:</strong> <?= htmlspecialchars($workout['workout_notes'])?></h4>
                         <!-- Add "See Workout" button -->
-                        <a href="../exercises/list_workout_exercises.php?workout_id=<?= htmlspecialchars($workout_id) ?>" 
-                        class="btn btn-primary btn-sm">See Workout</a>
+                        <a href="../exercises/list_workout_exercises.php?workout_id=<?= htmlspecialchars($workout_id) ?>"class="btn btn-primary btn-sm">See Workout</a>
+                        
                     </div>
                     <?php foreach ($workout['exercises'] as $exercise_name => $rows): ?>
                         <div class="exercise-section mt-3">

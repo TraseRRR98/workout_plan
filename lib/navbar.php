@@ -36,7 +36,7 @@ if (isset($_SESSION['user_id'])) {
             <ul class="navbar-nav">
                 <!-- Home Link -->
                 <li class="nav-item">
-                    <a class="nav-link" href="index.php">Home</a>
+                    <a class="nav-link" href="../lib/index.php">Home</a>
                 </li>
 
                 <?php if (isset($_SESSION['user_id'])): ?>

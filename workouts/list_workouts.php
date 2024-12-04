@@ -1,14 +1,14 @@
 <?php
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
-require_once '../lib/css.php';
 include '../lib/navbar.php';
+include '../lib/css.php';
 
-if (!is_set_with_error('user_id'))
-    die("Error: user_id is required.");
+if (session_status() == PHP_SESSION_NONE) 
+    session_start();
 
-// $user_id = get_safe('user_id');
-$user_id = 1;
+if (!isset($_SESSION['user_id'])) 
+    die("Error: user_id is not set.");
 
 $query = "
 SELECT 
@@ -36,6 +36,9 @@ if (!$result)
 <body>
     <div class="container mt-4">
         <h2 class="mb-4 text-center">Your Workouts</h2>
+        <div class="mt-4">
+            <a href="../workouts/add_workouts.php" class="btn btn-success">Add Workout</a>
+        </div>
         <?php if ($result->num_rows > 0): ?>
             <table class="table table-bordered table-hover">
                 <thead class="thead-dark">
@@ -43,7 +46,7 @@ if (!$result)
                         <th>#</th>
                         <th>Date</th>
                         <th>Duration (min)</th>
-                        <th>Notes</th>
+                        <th>Workout Name</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

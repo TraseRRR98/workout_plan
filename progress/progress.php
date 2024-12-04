@@ -1,19 +1,15 @@
 <?php
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
+include '../lib/navbar.php';
 include '../lib/css.php';
 
+if (session_status() == PHP_SESSION_NONE) 
+    session_start();
 
 if (!isset($_SESSION['user_id'])) 
     die("Error: user_id is not set.");
 
-$user_id = $_SESSION['user_id'];
-
-if (!is_set_with_error('user_id')) 
-    exit;
-
-// $user_id = get_safe('user_id');
-$user_id = 1;
 $query = "
 SELECT 
     p.progress_id, 

@@ -3,6 +3,9 @@ require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
 require_once '../lib/css.php'; // Include Bootstrap CSS
 
+if (session_status() == PHP_SESSION_NONE) 
+    session_start();
+
 if (!is_set_with_error('user_exercise_id'))
     die("Error: user_exercise_id is required.");
 

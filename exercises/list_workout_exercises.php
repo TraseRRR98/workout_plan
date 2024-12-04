@@ -1,10 +1,24 @@
 <?php
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
-require_once '../lib/css.php'; // Include Bootstrap CSS
+include '../lib/navbar.php';
+include '../lib/css.php';
 
-if (!is_set_with_error('workout_id')) 
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Ensure the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    die("Error: User is not logged in.");
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Validate and retrieve the workout_id
+if (!is_set_with_error('workout_id')) {
     die("Error: workout_id is required.");
+}
 
 $workout_id = get_safe('workout_id');
 
@@ -24,8 +38,9 @@ ORDER BY we.exercise_order ASC";
 
 $result = $conn->query($query);
 
-if (!$result) 
+if (!$result) {
     die("Error retrieving workout exercises: " . $conn->error);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -70,7 +85,7 @@ if (!$result)
             </div>
         <?php endif; ?>
         <div class="text-center mt-4">
-            <a href="../workouts/list_workouts.php?user_id=<?= htmlspecialchars($_GET['user_id']) ?>" class="btn btn-secondary">Back to Workouts</a>
+            <a href="../workouts/list_workouts.php" class="btn btn-secondary">Back to Workouts</a>
         </div>
     </div>
 </body>

@@ -20,6 +20,20 @@ if (!is_set_with_error('workout_id')) {
 
 $workout_id = get_safe('workout_id');
 
+$workout_query = "
+SELECT notes 
+FROM workouts 
+WHERE workout_id = '$workout_id' AND user_id = '$user_id'";
+
+$workout_result = $conn->query($workout_query);
+
+if (!$workout_result || $workout_result->num_rows == 0) {
+    die("Error: Workout not found or you are not authorized to view it.");
+}
+
+$workout = $workout_result->fetch_assoc();
+$workout_name = $workout['notes'];
+
 // Fetch all exercises for the selected workout
 $query = "
 SELECT 
@@ -46,11 +60,11 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workout Exercises</title>
+    <title><?= htmlspecialchars($workout_name) ?> - Workout Exercises</title>
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="mb-4 text-center">Workout Exercises</h2>
+        <h1 class="mb-4 text-center"><?= htmlspecialchars($workout_name) ?></h1>
         <?php if ($result->num_rows > 0): ?>
             <table class="table table-bordered table-hover">
                 <thead class="thead-dark">

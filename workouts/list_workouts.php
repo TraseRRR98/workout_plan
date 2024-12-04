@@ -34,7 +34,7 @@ if (!$result)
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="mb-4 text-center">Your Workouts</h2>
+        <h1 class="mb-4 text-center">Your Workouts</h1>
         <div class="mt-4">
             <a href="../workouts/add_workouts.php" class="btn btn-primary btn-lg">Add Workout</a>
         </div>

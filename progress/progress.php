@@ -55,7 +55,7 @@ while ($row = $result->fetch_assoc()) {
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="mb-4 text-center">Your Workout Progress</h2>
+        <h1 class="mb-4 text-center">Your Workout Progress</h1>
         <?php if (!empty($workouts)): ?>
             <?php foreach ($workouts as $workout_id => $workout): ?>
                 <div class="workout-container mb-4 p-3 border rounded">
@@ -77,7 +77,6 @@ while ($row = $result->fetch_assoc()) {
                                         <th>Sets</th>
                                         <th>Reps</th>
                                         <th>Weight (kg)</th>
-                                        <th>Difference</th>
                                         <th>Notes</th>
                                     </tr>
                                 </thead>

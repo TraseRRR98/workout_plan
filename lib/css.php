@@ -11,10 +11,25 @@
 <link rel="stylesheet" href="../assets/all.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-<script>
-
-
-
-</script>
+<style>
+    .workout-container {
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 5px;
+    }
+    .exercise-name {
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: underline;
+    }
+    .exercise-name:hover {
+        text-decoration: none;
+    }
+    .progress-table {
+        display: none;
+        margin-top: 10px;
+    }
+</style>
 
 

@@ -69,7 +69,7 @@ if (!$result) {
                             <td><?= htmlspecialchars($row['reps']) ?></td>
                             <td><?= htmlspecialchars($row['weight']) ?></td>
                             <td>
-                                <a href="modify_exercise.php?user_exercise_id=<?= htmlspecialchars($row['workout_exercise_id']) ?>" class="btn btn-warning btn-sm">Modify</a>
+                                <a href="modify_exercise.php?user_exercise_id=<?= htmlspecialchars($row['workout_exercise_id']) ?>" class="btn btn-warning btn-sm">Add Progression</a>
                             </td>
                         </tr>
                     <?php endwhile; ?>

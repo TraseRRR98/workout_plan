@@ -1,7 +1,8 @@
 <?php
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
-require_once '../lib/css.php'; // Include Bootstrap CSS
+require_once '../lib/css.php';
+include '../lib/navbar.php';
 
 if (!is_set_with_error('user_id'))
     die("Error: user_id is required.");

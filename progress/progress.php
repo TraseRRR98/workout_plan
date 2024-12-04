@@ -1,7 +1,6 @@
 <?php
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
-require_once '../login/user_login_tools.php';
 include '../lib/css.php';
 
 

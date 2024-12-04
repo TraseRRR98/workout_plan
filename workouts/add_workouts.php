@@ -26,17 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $duration = get_safe('duration');
     $notes = get_safe('notes');
     $selected_exercises = get_safe('exercises');
-    $sets_array = get_safe('sets');
-    $reps_array = get_safe('reps');
-    $weight_array = get_safe('weight');
 
     // Validate inputs
     if (empty($workout_date) || empty($duration) || empty($selected_exercises)) {
         $error = "Workout date, duration, and at least one exercise are required.";
     } elseif (!is_numeric($duration) || $duration <= 0) {
         $error = "Duration must be a positive number.";
-    } elseif (count($selected_exercises) !== count($sets_array) || count($selected_exercises) !== count($reps_array) || count($selected_exercises) !== count($weight_array)) {
-        $error = "Mismatch in the number of exercises and their corresponding sets, reps, and weight.";
     } else {
         // Proceed with database operations
         $conn->begin_transaction();
@@ -53,30 +48,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Get the newly inserted workout_id
             $workout_id = $conn->insert_id;
 
-            // Insert exercises into users_exercises table
-            foreach ($selected_exercises as $index => $exercise_id) {
-                $sets = $sets_array[$index];
-                $reps = $reps_array[$index];
-                $weight = $weight_array[$index];
-
-                // Validate sets, reps, and weight
-                if (!is_numeric($sets) || $sets <= 0 || !is_numeric($reps) || $reps <= 0 || !is_numeric($weight) || $weight <= 0) {
-                    throw new Exception("Invalid sets, reps, or weight for exercise ID $exercise_id.");
-                }
-
-                // Insert into users_exercises table
-                $exercise_query = "
+            // Insert selected exercises into users_exercises table and link them to the workout
+            foreach ($selected_exercises as $exercise_id) {
+                // Insert exercise into users_exercises table
+                $users_exercises_query = "
                     INSERT INTO users_exercises (user_id, exercise_id, sets, reps, weight, created_date) 
-                    VALUES ('$user_id', '$exercise_id', '$sets', '$reps', '$weight', NOW())
+                    VALUES ('$user_id', '$exercise_id', NULL, NULL, NULL, NOW())
                 ";
-                if (!$conn->query($exercise_query)) {
-                    throw new Exception("Error adding exercises: " . $conn->error);
+                if (!$conn->query($users_exercises_query)) {
+                    throw new Exception("Error adding exercise to user: " . $conn->error);
                 }
 
                 // Get the newly inserted user_exercise_id
                 $user_exercise_id = $conn->insert_id;
 
-                // Insert into workout_exercises table
+                // Link exercise to the workout in workout_exercises table
                 $workout_exercise_query = "
                     INSERT INTO workout_exercises (workout_id, user_exercise_id, exercise_order, created_date) 
                     VALUES ('$workout_id', '$user_exercise_id', 1, NOW())
@@ -101,40 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Workout</title>
-    <script>
-        function addExerciseInputs(select) {
-            const container = document.getElementById('exerciseInputs');
-            container.innerHTML = ''; // Clear existing inputs
-
-            Array.from(select.selectedOptions).forEach(option => {
-                const exerciseId = option.value;
-                const exerciseName = option.text;
-
-                const div = document.createElement('div');
-                div.classList.add('mb-3');
-
-                div.innerHTML = `
-                    <h5>${exerciseName}</h5>
-                    <input type="hidden" name="exercises[]" value="${exerciseId}">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label for="sets_${exerciseId}" class="form-label">Sets</label>
-                            <input type="number" class="form-control" id="sets_${exerciseId}" name="sets[]" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="reps_${exerciseId}" class="form-label">Reps</label>
-                            <input type="number" class="form-control" id="reps_${exerciseId}" name="reps[]" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="weight_${exerciseId}" class="form-label">Weight (kg)</label>
-                            <input type="number" class="form-control" id="weight_${exerciseId}" name="weight[]" required>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-    </script>
 </head>
 <body>
     <div class="container mt-4">
@@ -163,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="mb-3">
                 <label for="exercises" class="form-label">Select Exercises</label>
-                <select class="form-control" id="exercises" name="exercises[]" multiple onchange="addExerciseInputs(this)" required>
+                <select class="form-control" id="exercises" name="exercises[]" multiple required>
                     <?php while ($exercise = $exercise_result->fetch_assoc()): ?>
                         <option value="<?= htmlspecialchars($exercise['exercise_id']) ?>">
                             <?= htmlspecialchars($exercise['exercise_name']) ?>
@@ -172,7 +124,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
                 <small class="form-text text-muted">Hold Ctrl (Cmd on Mac) to select multiple exercises.</small>
             </div>
-            <div id="exerciseInputs"></div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Add Workout</button>
                 <a href="list_workouts.php" class="btn btn-secondary">Cancel</a>

@@ -73,7 +73,7 @@ if (!$result)
             </div>
         <?php endif; ?>
         <div class="text-center mt-4">
-            <a href="../index.php" class="btn btn-primary">Back to Dashboard</a>
+            <a href="../lib/index.php" class="btn btn-primary">Back to Home</a>
         </div>
     </div>
 </body>

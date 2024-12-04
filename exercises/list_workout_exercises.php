@@ -4,14 +4,12 @@ require_once '../lib/db_connect.php';
 include '../lib/navbar.php';
 include '../lib/css.php';
 
-if (session_status() == PHP_SESSION_NONE) {
+if (session_status() == PHP_SESSION_NONE) 
     session_start();
-}
 
 // Ensure the user is logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) 
     die("Error: User is not logged in.");
-}
 
 $user_id = $_SESSION['user_id'];
 

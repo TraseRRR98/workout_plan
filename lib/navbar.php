@@ -43,6 +43,9 @@ if (isset($_SESSION['user_id'])) {
                     <!-- Links for Trainee -->
                     <?php if ($user_type === 'Trainee'): ?>
                         <li class="nav-item">
+                            <a class="nav-link" href="../profile/profile.php">Profile</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="../workouts/list_workouts.php">My Workouts</a>
                         </li>
                         <li class="nav-item">

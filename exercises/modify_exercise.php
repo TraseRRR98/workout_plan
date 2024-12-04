@@ -18,11 +18,11 @@ SELECT
     e.exercise_name,
     ue.sets,
     ue.reps,
-    ue.weight
+    ue.weight,
+    ue.user_id
 FROM users_exercises ue
 JOIN exercises e ON ue.exercise_id = e.exercise_id
-WHERE ue.user_exercise_id = '$user_exercise_id'
-";
+WHERE ue.user_exercise_id = '$user_exercise_id'";
 
 $result = $conn->query($query);
 

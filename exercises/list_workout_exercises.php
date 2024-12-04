@@ -56,7 +56,6 @@ if (!$result) {
             <table class="table table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th>#</th>
                         <th>Exercise</th>
                         <th>Sets</th>
                         <th>Reps</th>
@@ -67,7 +66,6 @@ if (!$result) {
                 <tbody>
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?= htmlspecialchars($row['workout_exercise_id']) ?></td>
                             <td><?= htmlspecialchars($row['exercise_name']) ?></td>
                             <td><?= htmlspecialchars($row['sets']) ?></td>
                             <td><?= htmlspecialchars($row['reps']) ?></td>

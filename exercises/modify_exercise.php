@@ -1,33 +1,41 @@
 <?php
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
-require_once '../lib/css.php'; // Include Bootstrap CSS
+require_once '../lib/css.php'; 
+include '../lib/navbar.php';
 
 if (session_status() == PHP_SESSION_NONE) 
     session_start();
 
+// Ensure the user is logged in
+if (!isset($_SESSION['user_id'])) 
+    die("Error: User is not logged in.");
+
+$logged_in_user_id = $_SESSION['user_id'];
+
+// Validate and retrieve `user_exercise_id`
 if (!is_set_with_error('user_exercise_id'))
     die("Error: user_exercise_id is required.");
 
 $user_exercise_id = get_safe('user_exercise_id');
 
-// Fetch the current exercise details
-$query = "
-SELECT 
-    ue.user_exercise_id,
-    e.exercise_name,
-    ue.sets,
-    ue.reps,
-    ue.weight,
-    ue.user_id
-FROM users_exercises ue
-JOIN exercises e ON ue.exercise_id = e.exercise_id
-WHERE ue.user_exercise_id = '$user_exercise_id'";
+// Check ownership of `user_exercise_id`
+$ownership_query = "
+    SELECT 
+        ue.user_exercise_id,
+        e.exercise_name,
+        ue.sets,
+        ue.reps,
+        ue.weight,
+        ue.user_id
+    FROM users_exercises ue
+    JOIN exercises e ON ue.exercise_id = e.exercise_id
+    WHERE ue.user_exercise_id = '$user_exercise_id' AND ue.user_id = '$logged_in_user_id'";
 
-$result = $conn->query($query);
+$result = $conn->query($ownership_query);
 
 if (!$result || $result->num_rows == 0)
-    die("Error: Unable to fetch exercise details.");
+    die("Error: You are not authorized to modify this exercise.");
 
 $exercise = $result->fetch_assoc();
 
@@ -42,21 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $update_query = "
         UPDATE users_exercises
         SET sets = '$sets', reps = '$reps', weight = '$weight'
-        WHERE user_exercise_id = '$user_exercise_id'
-    ";
+        WHERE user_exercise_id = '$user_exercise_id' AND user_id = '$logged_in_user_id'";
     if (!$conn->query($update_query))
         die("Error updating exercise: " . $conn->error);
 
     // Insert into the `progress` table
     $insert_query = "
         INSERT INTO progress (user_exercise_id, date, sets, reps, weight, notes)
-        VALUES ('$user_exercise_id', CURDATE(), '$sets', '$reps', '$weight', '$notes')
-    ";
+        VALUES ('$user_exercise_id', CURDATE(), '$sets', '$reps', '$weight', '$notes')";
     if (!$conn->query($insert_query))
         die("Error recording progress: " . $conn->error);
 
     // Redirect back to progress page
-    header("Location: ../progress/progress.php?user_id=" . $exercise['user_id']);
+    header("Location: ../progress/progress.php?user_id=" . $logged_in_user_id);
     exit;
 }
 ?>
@@ -93,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-success">Save Changes & Record Progress</button>
-                <a href="../progress/progress.php?user_id=<?= htmlspecialchars($exercise['user_id']) ?>" class="btn btn-secondary">Cancel</a>
+                <a href="../progress/progress.php?user_id=<?= htmlspecialchars($logged_in_user_id) ?>" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

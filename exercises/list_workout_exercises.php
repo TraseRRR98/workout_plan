@@ -24,6 +24,7 @@ $workout_id = get_safe('workout_id');
 $query = "
 SELECT 
     we.workout_exercise_id,
+    ue.user_exercise_id, -- Include user_exercise_id
     e.exercise_name,
     ue.sets,
     ue.reps,
@@ -69,7 +70,8 @@ if (!$result) {
                             <td><?= htmlspecialchars($row['reps']) ?></td>
                             <td><?= htmlspecialchars($row['weight']) ?></td>
                             <td>
-                                <a href="modify_exercise.php?user_exercise_id=<?= htmlspecialchars($row['workout_exercise_id']) ?>" class="btn btn-warning btn-sm">Add Progression</a>
+                                <a href="modify_exercise.php?user_exercise_id=<?= htmlspecialchars($row['user_exercise_id']) ?>" 
+                                class="btn btn-primary btn-sm">Add Progression</a>
                             </td>
                         </tr>
                     <?php endwhile; ?>

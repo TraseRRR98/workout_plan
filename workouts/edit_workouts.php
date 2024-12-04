@@ -84,8 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Add exercise to the user's list
                 $insert_user_exercise_query = "
                     INSERT INTO users_exercises (user_id, exercise_id, sets, reps, weight, created_date)
-                    VALUES ('{$_SESSION['user_id']}', '$
-                    exercise_id', NULL, NULL, NULL, NOW())";
+                    VALUES ('{$_SESSION['user_id']}', '$exercise_id', NULL, NULL, NULL, NOW())";
                 $conn->query($insert_user_exercise_query);
                 $user_exercise_id = $conn->insert_id;
             }

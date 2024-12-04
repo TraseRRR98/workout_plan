@@ -1,7 +1,7 @@
 <?php
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
-require_once '../lib/css.php'; 
+include '../lib/css.php'; 
 include '../lib/navbar.php';
 
 if (session_status() == PHP_SESSION_NONE) 
@@ -27,9 +27,11 @@ $ownership_query = "
         ue.sets,
         ue.reps,
         ue.weight,
-        ue.user_id
+        ue.user_id,
+        we.workout_id
     FROM users_exercises ue
     JOIN exercises e ON ue.exercise_id = e.exercise_id
+    JOIN workout_exercises we ON we.user_exercise_id = ue.user_exercise_id
     WHERE ue.user_exercise_id = '$user_exercise_id' AND ue.user_id = '$logged_in_user_id'";
 
 $result = $conn->query($ownership_query);
@@ -99,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-success">Save Changes & Record Progress</button>
-                <a href="../progress/progress.php?user_id=<?= htmlspecialchars($logged_in_user_id) ?>" class="btn btn-secondary">Cancel</a>
+                <a href="../exercises/list_workout_exercises.php?workout_id=<?= htmlspecialchars($exercise['workout_id']) ?>" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

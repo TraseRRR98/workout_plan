@@ -9,7 +9,7 @@ if (session_status() == PHP_SESSION_NONE)
 
 if (!isset($_SESSION['user_id'])) 
     die("Error: user_id is not set.");
-
+  // -- LAG to Fetch previous progress
 $query = "
 SELECT 
     w.workout_id,
@@ -21,7 +21,10 @@ SELECT
     p.sets,
     p.reps,
     p.weight,
-    p.notes AS progress_notes
+    p.notes AS progress_notes,
+    LAG(p.sets) OVER (PARTITION BY ue.exercise_id ORDER BY p.date DESC) AS prev_sets,
+    LAG(p.reps) OVER (PARTITION BY ue.exercise_id ORDER BY p.date DESC) AS prev_reps,
+    LAG(p.weight) OVER (PARTITION BY ue.exercise_id ORDER BY p.date DESC) AS prev_weight
 FROM progress p
 JOIN users_exercises ue ON p.user_exercise_id = ue.user_exercise_id
 JOIN exercises e ON ue.exercise_id = e.exercise_id
@@ -55,10 +58,15 @@ while ($row = $result->fetch_assoc()) {
         <h2 class="mb-4 text-center">Your Workout Progress</h2>
         <?php if (!empty($workouts)): ?>
             <?php foreach ($workouts as $workout_id => $workout): ?>
-                <div class="workout-container">
-                    <h4><strong>Workout name:</strong> <?= htmlspecialchars($workout['workout_notes']) ?></h4>
+                <div class="workout-container mb-4 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4><strong>Workout name:</strong> <?= htmlspecialchars($workout['workout_notes']) ?></h4>
+                        <!-- Add "See Workout" button -->
+                        <a href="../exercises/list_workout_exercises.php?workout_id=<?= htmlspecialchars($workout_id) ?>" 
+                        class="btn btn-primary btn-sm">See Workout</a>
+                    </div>
                     <?php foreach ($workout['exercises'] as $exercise_name => $rows): ?>
-                        <div class="exercise-section">
+                        <div class="exercise-section mt-3">
                             <h5 class="exercise-name" onclick="toggleTable('workout-<?= $workout_id ?>-<?= htmlspecialchars($exercise_name) ?>')">
                                 <?= htmlspecialchars($exercise_name) ?>
                             </h5>
@@ -69,16 +77,37 @@ while ($row = $result->fetch_assoc()) {
                                         <th>Sets</th>
                                         <th>Reps</th>
                                         <th>Weight (kg)</th>
+                                        <th>Difference</th>
                                         <th>Notes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($rows as $row): ?>
+                                        <?php
+                                        // Calculate differences
+                                        $diff_sets = $row['sets'] - ($row['prev_sets'] ?? 0);
+                                        $diff_reps = $row['reps'] - ($row['prev_reps'] ?? 0);
+                                        $diff_weight = $row['weight'] - ($row['prev_weight'] ?? 0);
+
+                                        // Determine classes for styling
+                                        $sets_class = $diff_sets > 0 ? 'progress-positive' : ($diff_sets < 0 ? 'progress-negative' : 'progress-neutral');
+                                        $reps_class = $diff_reps > 0 ? 'progress-positive' : ($diff_reps < 0 ? 'progress-negative' : 'progress-neutral');
+                                        $weight_class = $diff_weight > 0 ? 'progress-positive' : ($diff_weight < 0 ? 'progress-negative' : 'progress-neutral');
+                                        ?>
                                         <tr>
                                             <td><?= htmlspecialchars($row['date']) ?></td>
-                                            <td><?= htmlspecialchars($row['sets']) ?></td>
-                                            <td><?= htmlspecialchars($row['reps']) ?></td>
-                                            <td><?= htmlspecialchars($row['weight']) ?></td>
+                                            <td class="<?= $sets_class ?>">
+                                                <?= htmlspecialchars($row['sets']) ?>
+                                                <?= $diff_sets !== 0 ? " (" . ($diff_sets > 0 ? "+" : "") . $diff_sets . ")" : "" ?>
+                                            </td>
+                                            <td class="<?= $reps_class ?>">
+                                                <?= htmlspecialchars($row['reps']) ?>
+                                                <?= $diff_reps !== 0 ? " (" . ($diff_reps > 0 ? "+" : "") . $diff_reps . ")" : "" ?>
+                                            </td>
+                                            <td class="<?= $weight_class ?>">
+                                                <?= htmlspecialchars($row['weight']) ?>
+                                                <?= $diff_weight !== 0 ? " (" . ($diff_weight > 0 ? "+" : "") . number_format($diff_weight, 2) . "kg)" : "" ?>
+                                            </td>
                                             <td><?= htmlspecialchars($row['progress_notes']) ?></td>
                                         </tr>
                                     <?php endforeach; ?>

@@ -42,6 +42,18 @@
         display: none;
         margin-top: 10px;
     }
+    .progress-positive {
+        color: green;
+        font-weight: bold;
+    }
+    .progress-negative {
+        color: red;
+        font-weight: bold;
+    }
+    .progress-neutral {
+        color: gray;
+        font-style: italic;
+    }
 </style>
 
 

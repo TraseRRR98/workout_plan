@@ -15,7 +15,6 @@ function start_session_and_validate_user()
     return $_SESSION['user_id'];
 }
 
-// Retrieve workout name (notes) for the given workout_id and user_id
 function get_workout_name($conn, $workout_id, $user_id) 
 {
     $query = " SELECT notes 

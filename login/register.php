@@ -1,5 +1,5 @@
 <?php
-require_once '../lib/db_connect.php'; 
+require_once '../lib/db_connect.php';
 require_once '../lib/accessors.php';
 include '../lib/css.php';
 session_start();
@@ -7,8 +7,7 @@ session_start();
 $error = '';
 $success = '';
 
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+function validate_registration_inputs()
 {
     $first_name = get_safe('first_name');
     $last_name = get_safe('last_name');
@@ -16,33 +15,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
     $password = get_safe('password');
     $confirm_password = get_safe('confirm_password');
 
-    // Validate inputs
     if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($confirm_password))
-        $error = "All fields are required.";
-    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL))
-        $error = "Invalid email format.";
-    elseif ($password !== $confirm_password)
-        $error = "Passwords do not match.";
+        return ['error' => "All fields are required."];
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+        return ['error' => "Invalid email format."];
+    if ($password !== $confirm_password)
+        return ['error' => "Passwords do not match."];
+
+    return [
+        'first_name' => $first_name,
+        'last_name' => $last_name,
+        'email' => $email,
+        'password' => $password
+    ];
+}
+
+function email_exists($conn, $email)
+{
+    $email = $conn->real_escape_string($email);
+    $query = "SELECT 1 FROM user WHERE email = '$email'";
+    $result = $conn->query($query);
+
+    return ($result && $result->num_rows > 0);
+}
+
+function register_user($conn, $data)
+{
+    $first_name = $conn->real_escape_string($data['first_name']);
+    $last_name = $conn->real_escape_string($data['last_name']);
+    $email = $conn->real_escape_string($data['email']);
+    $hashed_password = password_hash($data['password'], PASSWORD_BCRYPT);
+
+    // Start transaction
+    $conn->begin_transaction();
+
+    try 
+    {
+        // Insert user into the database
+        $query = "INSERT INTO user (first_name, last_name, email, password, usertype_id) 
+                  VALUES ('$first_name', '$last_name', '$email', '$hashed_password', 1)";
+        $conn->query($query);
+
+        // Commit transaction
+        $conn->commit();
+        return null; // Success
+    } catch (Exception $e) 
+    {
+        // Rollback transaction in case of error
+        $conn->rollback();
+        return "Registration failed: " . $e->getMessage();
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+{
+    $input = validate_registration_inputs();
+
+    if (isset($input['error']))
+        $error = $input['error'];
     else 
     {
-        // Check if the email already exists
-        $query = "SELECT * FROM user WHERE email = '$email'";
-        $result = $conn->query($query);
-
-        if ($result && $result->num_rows > 0)
+        if (email_exists($conn, $input['email'])) 
             $error = "An account with this email already exists.";
-        else {
-            // Hash the password
-            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+        else 
+        {
+            $error = register_user($conn, $input);
 
-            // Insert the user into the database
-            $query = "INSERT INTO user (first_name, last_name, email, password, usertype_id) 
-                VALUES ('$first_name', '$last_name', '$email', '$hashed_password', 1)";
-        
-            if ($conn->query($query)) 
+            if (!$error) 
                 $success = "Registration successful! You can now <a href='login.php'>Login</a>.";
-            else
-                $error = "Error: " . $conn->error;
         }
     }
 }
@@ -64,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
             </div>
         <?php elseif (!empty($success)): ?>
             <div class="alert alert-success text-center">
-                <?= $success // Render raw HTML ?>
+                <?= $success ?>
             </div>
         <?php endif; ?>
 

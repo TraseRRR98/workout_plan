@@ -1,39 +1,53 @@
 <?php
 require_once '../lib/db_connect.php'; // Database connection
-require_once '../lib/accessors.php'; // Accessor functions
+require_once '../lib/accessors.php';
 session_start();
 
-// Check if the form is submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+function validate_user_input()
 {
     $email = get_safe('email');
     $password = get_safe('password');
 
-    // Validate inputs
-    if (empty($email) || empty($password)) {
-        $error = "Both email and password are required.";
-    } else {
-        // Query the database for the user
-        $query = "SELECT user_id, password, usertype_id FROM user WHERE email = '$email'";
-        $result = $conn->query($query);
+    if (empty($email) || empty($password)) 
+        return ['error' => "Both email and password are required."];
 
-        if ($result && $result->num_rows > 0) {
-            $user = $result->fetch_assoc();
+    return ['email' => $email, 'password' => $password];
+}
 
-            // Verify the password
-            if (password_verify($password, $user['password'])) { 
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['usertype_id'] = $user['usertype_id'];
+function fetch_user_by_email($conn, $email)
+{
+    $email = $conn->real_escape_string($email);
+    $query = "SELECT user_id, password, usertype_id FROM user WHERE email = '$email'";
+    $result = $conn->query($query);
 
-                header("Location: ../lib/index.php");
-                exit;
-            } else {
-                $error = "Invalid email or password.";
-            }
-        } else {
-            $error = "Invalid email or password.";
-        }
+    return ($result && $result->num_rows > 0) ? $result->fetch_assoc() : null;
+}
+
+function handle_login($conn, $email, $password)
+{
+    $user = fetch_user_by_email($conn, $email);
+
+    if ($user && password_verify($password, $user['password'])) 
+    {
+        // Set session variables
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['usertype_id'] = $user['usertype_id'];
+        header("Location: ../lib/index.php");
+        exit;
     }
+    return "Invalid email or password.";
+}
+
+$error = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+{
+    $input = validate_user_input();
+
+    if (isset($input['error'])) 
+        $error = $input['error'];
+    else 
+        $error = handle_login($conn, $input['email'], $input['password']);
 }
 ?>
 

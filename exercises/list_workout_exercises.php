@@ -4,57 +4,66 @@ require_once '../lib/db_connect.php';
 include '../lib/navbar.php';
 include '../lib/css.php';
 
-if (session_status() == PHP_SESSION_NONE) 
-    session_start();
+// Start session and verify user login
+function start_session_and_validate_user() 
+{
+    if (session_status() == PHP_SESSION_NONE) 
+        session_start();
 
-// Ensure the user is logged in
-if (!isset($_SESSION['user_id'])) 
-    die("Error: User is not logged in.");
+    if (!isset($_SESSION['user_id'])) 
+        die("Error: User is not logged in.");
 
-$user_id = $_SESSION['user_id'];
-
-// Validate and retrieve the workout_id
-if (!is_set_with_error('workout_id')) {
-    die("Error: workout_id is required.");
+    return $_SESSION['user_id'];
 }
+
+// Retrieve workout name (notes) for the given workout_id and user_id
+function get_workout_name($conn, $workout_id, $user_id) 
+{
+    $query = " SELECT notes 
+               FROM workouts 
+               WHERE workout_id = '$workout_id' AND user_id = '$user_id'";
+    
+    $result = $conn->query($query);
+    if (!$result || $result->num_rows == 0) 
+        die("Error: Workout not found or you are not authorized to view it.");
+
+    $row = $result->fetch_assoc();
+    return $row['notes'];
+}
+
+// Fetch exercises associated with the selected workout
+function get_workout_exercises($conn, $workout_id) 
+{
+    $query = "SELECT 
+                we.workout_exercise_id,
+                ue.user_exercise_id,
+                e.exercise_name,
+                ue.sets,
+                ue.reps,
+                ue.weight 
+              FROM workout_exercises we
+              JOIN users_exercises ue ON we.user_exercise_id = ue.user_exercise_id
+              JOIN exercises e ON ue.exercise_id = e.exercise_id
+              WHERE we.workout_id = '$workout_id'
+              ORDER BY we.exercise_order ASC";
+    
+    $result = $conn->query($query);
+    if (!$result) 
+        die("Error retrieving workout exercises: " . $conn->error);
+
+    return $result;
+}
+
+$user_id = start_session_and_validate_user();
+
+if (!is_set_with_error('workout_id')) 
+    die("Error: workout_id is required.");
 
 $workout_id = get_safe('workout_id');
-
-$workout_query = "
-SELECT notes 
-FROM workouts 
-WHERE workout_id = '$workout_id' AND user_id = '$user_id'";
-
-$workout_result = $conn->query($workout_query);
-
-if (!$workout_result || $workout_result->num_rows == 0) {
-    die("Error: Workout not found or you are not authorized to view it.");
-}
-
-$workout = $workout_result->fetch_assoc();
-$workout_name = $workout['notes'];
-
-// Fetch all exercises for the selected workout
-$query = "
-SELECT 
-    we.workout_exercise_id,
-    ue.user_exercise_id, -- Include user_exercise_id
-    e.exercise_name,
-    ue.sets,
-    ue.reps,
-    ue.weight 
-FROM workout_exercises we
-JOIN users_exercises ue ON we.user_exercise_id = ue.user_exercise_id
-JOIN exercises e ON ue.exercise_id = e.exercise_id
-WHERE we.workout_id = '$workout_id'
-ORDER BY we.exercise_order ASC";
-
-$result = $conn->query($query);
-
-if (!$result) {
-    die("Error retrieving workout exercises: " . $conn->error);
-}
+$workout_name = get_workout_name($conn, $workout_id, $user_id);
+$exercises = get_workout_exercises($conn, $workout_id);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,7 +74,7 @@ if (!$result) {
 <body>
     <div class="container mt-4">
         <h1 class="mb-4 text-center"><?= htmlspecialchars($workout_name) ?></h1>
-        <?php if ($result->num_rows > 0): ?>
+        <?php if ($exercises->num_rows > 0): ?>
             <table class="table table-bordered table-hover">
                 <thead class="thead-dark">
                     <tr>
@@ -77,7 +86,7 @@ if (!$result) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = $result->fetch_assoc()): ?>
+                    <?php while ($row = $exercises->fetch_assoc()): ?>
                         <tr>
                             <td><?= htmlspecialchars($row['exercise_name']) ?></td>
                             <td><?= htmlspecialchars($row['sets']) ?></td>

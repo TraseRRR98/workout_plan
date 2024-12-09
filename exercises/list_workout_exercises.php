@@ -4,7 +4,6 @@ require_once '../lib/db_connect.php';
 include '../lib/navbar.php';
 include '../lib/css.php';
 
-// Start session and verify user login
 function start_session_and_validate_user() 
 {
     if (session_status() == PHP_SESSION_NONE) 
@@ -31,7 +30,6 @@ function get_workout_name($conn, $workout_id, $user_id)
     return $row['notes'];
 }
 
-// Fetch exercises associated with the selected workout
 function get_workout_exercises($conn, $workout_id) 
 {
     $query = "SELECT 

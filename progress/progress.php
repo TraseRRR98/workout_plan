@@ -7,8 +7,7 @@ include '../lib/css.php';
 if (session_status() == PHP_SESSION_NONE) 
     session_start();
 
-if (!isset($_SESSION['user_id'])) 
-    die("Error: user_id is not set.");
+$user_id = $_SESSION['user_id'];
   // -- LAG to Fetch previous progress
 $query = "
 SELECT 

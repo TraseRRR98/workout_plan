@@ -7,17 +7,13 @@ include '../lib/css.php';
 if (session_status() == PHP_SESSION_NONE) 
     session_start();
 
-if (!isset($_SESSION['user_id'])) 
-    die("Error: user_id is not set.");
+$user_id = $_SESSION['user_id'];
 
-$query = "
-SELECT 
-    workout_id, 
-    duration, 
-    notes 
-FROM workouts
-WHERE user_id = '$user_id'
-ORDER BY workout_id ASC";
+$query = "SELECT workout_id, duration, notes 
+          FROM workouts
+          WHERE user_id = '$user_id'
+          ORDER BY workout_id ASC";
+
 
 $result = $conn->query($query);
 

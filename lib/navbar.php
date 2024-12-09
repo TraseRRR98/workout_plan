@@ -14,8 +14,8 @@ function get_user_type($conn)
     if ($user_id <= 0) 
         return null; // Invalid user_id
 
-    // Manually include the user_id in the query
-    $safe_user_id = $user_id; // No need for get_safe() on integers here
+
+    $safe_user_id = $user_id; 
 
     $query = "SELECT uu.usertype_description 
               FROM user u
@@ -23,7 +23,8 @@ function get_user_type($conn)
               WHERE u.user_id = $safe_user_id";
 
     $result = $conn->query($query);
-    if ($result && $result->num_rows > 0) {
+    if ($result && $result->num_rows > 0) 
+    {
         $row = $result->fetch_assoc();
         return $row['usertype_description'];
     }
@@ -41,7 +42,7 @@ function render_navigation_links($user_type)
     } elseif ($user_type === 'Coach') 
     {
         echo '<li class="nav-item"><a class="nav-link" href="../coach/manage_trainees.php">Manage Trainees</a></li>
-             <li class="nav-item"><a class="nav-link" href="../coach/create_programs.php">Create Programs</a></li>'; 
+              <li class="nav-item"><a class="nav-link" href="../coach/create_programs.php">Create Programs</a></li>'; 
     } elseif ($user_type === 'Administrator') 
     {
         echo '<li class="nav-item"><a class="nav-link" href="../admin/admin_panel.php">Admin Panel</a></li>

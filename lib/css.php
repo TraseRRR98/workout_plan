@@ -42,25 +42,28 @@
         display: none;
         margin-top: 10px;
     }
-    .progress-positive {
+    .progress-positive 
+    {
         color: green;
         font-weight: bold;
     }
-    .progress-negative {
+    .progress-negative 
+    {
         color: red;
         font-weight: bold;
     }
-    .progress-neutral {
+    .progress-neutral 
+    {
         color: gray;
         font-style: italic;
     }
-    body {
+    body 
+    {
         font-family: Arial, sans-serif;
     }
 
-    
-
-    .half {
+    .half 
+    {
         flex: 1;
         display: flex;
         justify-content: center;
@@ -68,11 +71,13 @@
         position: relative;
     }
 
-    .half.background {
+    .half.background 
+    {
         background: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3ltfGVufDB8fDB8fHww') no-repeat center center/cover;
     }
 
-    .half.text {
+    .half.text 
+    {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -80,7 +85,8 @@
         background-color: #f4f4f4;
     }
 
-    .half.text button {
+    .half.text button 
+    {
         margin: 10px;
         padding: 10px 20px;
         font-size: 16px;
@@ -91,14 +97,16 @@
         cursor: pointer;
     }
 
-    .half.text p {
+    .half.text p 
+    {
         margin-bottom: 30px;
         font-size: 20px;
         color: #333;
         max-width: 80%;
     }
 
-    .half.text button {
+    .half.text button 
+    {
         margin: 10px;
         padding: 10px 20px;
         font-size: 16px;
@@ -109,10 +117,12 @@
         cursor: pointer;
     }
 
-    .half.text button:hover {
+    .half.text button:hover 
+    {
         background-color: #0056b3;
     }
-    strong{
+    strong
+    {
         color:orange;
     }
 </style>

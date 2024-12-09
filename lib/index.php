@@ -1,38 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
+
 <?php
 require_once "../lib/accessors.php";
 require_once "../lib/db_connect.php";
 include "../lib/navbar.php";
 include "../lib/css.php";
 
-if (session_status() == PHP_SESSION_NONE)
-    session_start();
+function get_logged_in_user_id() 
+{
+    if (session_status() == PHP_SESSION_NONE)
+        session_start();
 
-// Check if the user is logged in
-$user_logged_in = isset($_SESSION['user_id']);
-$user_id = $user_logged_in ? $_SESSION['user_id'] : null;
+    if (!isset($_SESSION['user_id'])) 
+        return null; // User is not logged in
 
-// If user is logged in, verify the user exists in the database
-if ($user_logged_in) 
+    return $_SESSION['user_id'];
+}
+
+// Function to verify if the logged-in user exists in the database
+function verify_user_exists($conn, $user_id) 
 {
     $query = "SELECT user_id FROM user WHERE user_id = " . intval($user_id);
     $result = $conn->query($query);
 
     if ($result === false || $result->num_rows === 0) 
-    {
-        echo "User ID {$user_id} not found in the database.";
-        exit;
-    }
+        die("User ID {$user_id} not found in the database.");
 }
+
+// Main Logic
+$user_id = get_logged_in_user_id();
+$user_logged_in = $user_id !== null;
+
+if ($user_logged_in) 
+    verify_user_exists($conn, $user_id);
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page</title>
     <style>
-        h1 {
+        h1 
+        {
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
             font-size: 48px;
@@ -41,10 +51,10 @@ if ($user_logged_in)
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        .container {
-        display: flex;
-        height: calc(100vh - 60px);
-        /* Adjust height to account for nav */
+        .container 
+        {
+            display: flex;
+            height: calc(100vh - 60px);
         }
     </style>
 </head>
@@ -70,5 +80,4 @@ if ($user_logged_in)
         </div>
     </div>
 </body>
-
 </html>

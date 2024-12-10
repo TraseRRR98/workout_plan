@@ -1,4 +1,4 @@
-<?php
+<?php ob_start();
 require_once '../lib/accessors.php';
 require_once '../lib/db_connect.php';
 include '../lib/navbar.php';
@@ -6,104 +6,115 @@ include '../lib/css.php';
 
 if (session_status() == PHP_SESSION_NONE) 
     session_start();
+function get_workout_id() 
+{
+    if (!is_set_with_error('workout_id')) 
+        die("Error: workout_id is required.");
 
-if (!isset($_GET['workout_id'])) 
-    die("Error: workout_id is required.");
+    return get_safe('workout_id');
+}
 
-$workout_id = get_safe('workout_id');
+function fetch_workout_details($conn, $workout_id) 
+{
+    $query = "SELECT workout_id, notes, duration 
+              FROM workouts 
+              WHERE workout_id = '$workout_id'";
+        
+    $result = $conn->query($query);
 
-// Fetch the workout details
-$query = "
-SELECT 
-    workout_id, 
-    notes, 
-    duration 
-FROM workouts 
-WHERE workout_id = '$workout_id'";
+    if (!$result || $result->num_rows == 0) 
+        die("Error: Unable to fetch workout details.");
 
-$result = $conn->query($query);
+    return $result->fetch_assoc();
+}
 
-if (!$result || $result->num_rows == 0) 
-    die("Error: Unable to fetch workout details.");
+function fetch_exercises($conn, $workout_id) 
+{
+    $query = "SELECT 
+                e.exercise_id, 
+                e.exercise_name, 
+                (SELECT COUNT(*) 
+              FROM workout_exercises we 
+              JOIN users_exercises ue ON we.user_exercise_id = ue.user_exercise_id 
+              WHERE we.workout_id = '$workout_id' AND ue.exercise_id = e.exercise_id) AS selected 
+              FROM exercises e";
+        
+    $result = $conn->query($query);
 
-$workout = $result->fetch_assoc();
+    if (!$result) 
+        die("Error retrieving exercises: " . $conn->error);
 
-// Fetch all exercises
-$exercises_query = "
-SELECT 
-    e.exercise_id, 
-    e.exercise_name, 
-    (SELECT COUNT(*) FROM workout_exercises we 
-     JOIN users_exercises ue ON we.user_exercise_id = ue.user_exercise_id 
-     WHERE we.workout_id = '$workout_id' AND ue.exercise_id = e.exercise_id) AS selected 
-FROM exercises e";
+    return $result;
+}
 
-$exercises_result = $conn->query($exercises_query);
-
-if (!$exercises_result)
-    die("Error retrieving exercises: " . $conn->error);
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+function handle_form_submission($conn, $workout_id, $user_id) 
+{
     $workout_name = get_safe('notes');
     $duration = get_safe('duration');
     $selected_exercises = isset($_POST['exercises']) ? $_POST['exercises'] : [];
 
-    // Update workout details
-    $update_query = "
-        UPDATE workouts 
-        SET notes = '$workout_name', duration = '$duration' 
-        WHERE workout_id = '$workout_id'";
-
+    $update_query = "UPDATE workouts 
+                     SET notes = '$workout_name', duration = '$duration' 
+                     WHERE workout_id = '$workout_id'";
+        
     if (!$conn->query($update_query)) 
         die("Error updating workout: " . $conn->error);
-
-    // Update workout exercises
+    
     $conn->begin_transaction();
-    try {
-        // Delete existing exercises for this workout
-        $delete_query = "
-            DELETE we FROM workout_exercises we
-            JOIN users_exercises ue ON we.user_exercise_id = ue.user_exercise_id
-            WHERE we.workout_id = '$workout_id'";
+    try 
+    {
+        $delete_query = "DELETE we FROM workout_exercises we
+                         JOIN users_exercises ue ON we.user_exercise_id = ue.user_exercise_id
+                         WHERE we.workout_id = '$workout_id'";
+            
         $conn->query($delete_query);
 
-        // Insert selected exercises
-        foreach ($selected_exercises as $exercise_id) {
-            // Check if the exercise already exists for the user
-            $user_exercise_query = "
-                SELECT user_exercise_id 
-                FROM users_exercises 
-                WHERE exercise_id = '$exercise_id' AND user_id = '{$_SESSION['user_id']}'";
+        foreach ($selected_exercises as $exercise_id) 
+        {
+            $user_exercise_query = "SELECT user_exercise_id 
+                                    FROM users_exercises 
+                                    WHERE exercise_id = '$exercise_id' AND user_id = '$user_id'";
+                
             $user_exercise_result = $conn->query($user_exercise_query);
 
-            if ($user_exercise_result->num_rows > 0) {
+            if ($user_exercise_result->num_rows > 0) 
+            {
                 $user_exercise = $user_exercise_result->fetch_assoc();
                 $user_exercise_id = $user_exercise['user_exercise_id'];
-            } else {
-                // Add exercise to the user's list
-                $insert_user_exercise_query = "
-                    INSERT INTO users_exercises (user_id, exercise_id, sets, reps, weight, created_date)
-                    VALUES ('{$_SESSION['user_id']}', '$exercise_id', NULL, NULL, NULL, NOW())";
+            } else 
+            {
+                $insert_user_exercise_query = "INSERT INTO users_exercises (user_id, exercise_id, sets, reps, weight, created_date)
+                                               VALUES ('$user_id', '$exercise_id', NULL, NULL, NULL, NOW())";
+                    
                 $conn->query($insert_user_exercise_query);
                 $user_exercise_id = $conn->insert_id;
             }
 
-            // Link exercise to the workout
-            $insert_workout_exercise_query = "
-                INSERT INTO workout_exercises (workout_id, user_exercise_id, exercise_order, created_date)
-                VALUES ('$workout_id', '$user_exercise_id', 1, NOW())";
+            $insert_workout_exercise_query = "INSERT INTO workout_exercises (workout_id, user_exercise_id, exercise_order, created_date)
+                                              VALUES ('$workout_id', '$user_exercise_id', 1, NOW())";
+                
             $conn->query($insert_workout_exercise_query);
         }
 
         $conn->commit();
-        header("Location: list_workouts.php");
+        header("Location: ../workouts/list_workouts.php");
         exit;
-    } catch (Exception $e) {
+    } catch (Exception $e) 
+    {
         $conn->rollback();
         die("Error updating workout exercises: " . $e->getMessage());
     }
 }
+
+$user_id = $_SESSION['user_id'] ?? die("Error: User is not logged in.");
+$workout_id = get_workout_id();
+
+$workout = fetch_workout_details($conn, $workout_id);
+$exercises_result = fetch_exercises($conn, $workout_id);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+    handle_form_submission($conn, $workout_id, $user_id);
+    ob_end_flush();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -156,22 +167,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 </html>
 <script>
-        // Live search filter function
-        function filterExercises() {
-            const searchInput = document.getElementById('exerciseSearch').value.toLowerCase();
-            const exerciseList = document.getElementById('exerciseList');
-            const exercises = exerciseList.getElementsByClassName('exercise-item');
+    function filterExercises() 
+    {
+        const searchInput = document.getElementById('exerciseSearch').value.toLowerCase();
+        const exerciseList = document.getElementById('exerciseList');
+        const exercises = exerciseList.getElementsByClassName('exercise-item');
 
-            for (let exercise of exercises) {
-                const exerciseName = exercise.getElementsByTagName('label')[0].innerText.toLowerCase();
-                if (exerciseName.includes(searchInput)) {
-                    exercise.style.display = '';
-                } else {
-                    exercise.style.display = 'none';
-                }
-            }
+        for (let exercise of exercises) 
+        {
+            const exerciseName = exercise.getElementsByTagName('label')[0].innerText.toLowerCase();
+            exercise.style.display = exerciseName.includes(searchInput) ? '' : 'none';
         }
-    </script>
+    }
+</script>
 <?php
 $conn->close();
 ?>

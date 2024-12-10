@@ -14,7 +14,6 @@ $query = "SELECT workout_id, duration, notes
           WHERE user_id = '$user_id'
           ORDER BY workout_id ASC";
 
-
 $result = $conn->query($query);
 
 if (!$result) 

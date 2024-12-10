@@ -15,7 +15,6 @@ function get_logged_in_user_id()
     return $_SESSION['user_id'];
 }
 
-// Function to fetch progress data
 function fetch_progress_data($conn, $user_id) 
 {
     $query = "SELECT 
@@ -40,7 +39,6 @@ function fetch_progress_data($conn, $user_id)
               WHERE w.user_id = '$user_id'
               ORDER BY w.workout_date DESC, e.exercise_name, p.date DESC";
         
-
     $result = $conn->query($query);
     if (!$result)
         die("Error retrieving progress: " . mysqli_error($conn));
